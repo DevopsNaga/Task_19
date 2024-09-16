@@ -1,0 +1,34 @@
+# Provider configuration
+provider "aws" {
+  region = "us-west-2"  # Modify as per your region
+}
+
+# S3 Bucket
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "my-terraform-bucket"  # Replace with a unique bucket name
+
+  # Enforce no public access
+  acl = "private"
+
+  tags = {
+    Name = "MyS3Bucket"
+  }
+}
+
+# S3 Bucket policy to deny public access
+resource "aws_s3_bucket_public_access_block" "block_public_access" {
+  bucket = aws_s3_bucket.my_bucket.id
+
+  block_public_acls   = true
+  block_public_policy = true
+  ignore_public_acls  = true
+  restrict_public_buckets = true
+}
+
+# Upload files to S3 bucket
+resource "aws_s3_bucket_object" "example_file" {
+  bucket = aws_s3_bucket.my_bucket.bucket
+  key    = "example.txt"  # S3 object key (file name)
+  source = "example.txt"  # File to upload (must be present in the same directory)
+  acl    = "private"
+}
